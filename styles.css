@@ -249,6 +249,8 @@ button { cursor: pointer; }
   font-weight: 500;
 }
 
+.polite[hidden] { display: none; }
+
 .hint {
   position: absolute;
   bottom: 16px;

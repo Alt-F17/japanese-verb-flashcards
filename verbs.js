@@ -212,7 +212,7 @@ const MIND = [
   ['卒業する', 'そつぎょうする', '卒業します', 'to graduate', 'irregular'],
 ];
 
-export const DECKS = [
+export const VERB_DECKS = [
   { id: 'core', label: 'Core verbs', rows: CORE },
   { id: 'daily', label: 'Daily life', rows: DAILY },
   { id: 'town', label: 'Home, town & travel', rows: TOWN },
@@ -220,9 +220,10 @@ export const DECKS = [
 ].map(({ id, label, rows }) => ({
   id,
   label,
-  verbs: rows.map(([kanji, kana, polite, english, type], i) => ({
+  cards: rows.map(([kanji, kana, polite, english, type], i) => ({
     id: `${id}-${i + 1}`,
     deck: id,
+    kind: 'verb',
     kanji,
     kana,
     polite,
@@ -231,12 +232,4 @@ export const DECKS = [
   })),
 }));
 
-export const VERBS = DECKS.flatMap((d) => d.verbs);
-
-export const ALL_DECK_ID = 'all';
-
-export function verbsForDeck(deckId) {
-  if (deckId === ALL_DECK_ID) return VERBS;
-  const deck = DECKS.find((d) => d.id === deckId);
-  return deck ? deck.verbs : DECKS[0].verbs;
-}
+export const VERBS = VERB_DECKS.flatMap((d) => d.cards);

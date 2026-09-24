@@ -1,6 +1,6 @@
 {
-  "name": "Japanese Verb Flashcards",
-  "short_name": "Verbs",
+  "name": "Japanese Flashcards",
+  "short_name": "Japanese",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

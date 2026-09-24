@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DECKS, VERBS, ALL_DECK_ID, verbsForDeck } from '../verbs.js';
+import { VERB_DECKS, VERBS } from '../verbs.js';
 
 const GODAN_I = { う: 'い', く: 'き', ぐ: 'ぎ', す: 'し', つ: 'ち', ぬ: 'に', ぶ: 'び', む: 'み', る: 'り' };
 const I_OR_E_ROW = 'いきぎしじちぢにひびぴみりえけげせぜてでねへべぺめれ';
@@ -21,11 +21,9 @@ function expectedPolite({ kanji, kana, type }) {
 }
 
 test('4 decks of exactly 50, 200 total', () => {
-  assert.equal(DECKS.length, 4);
-  for (const d of DECKS) assert.equal(d.verbs.length, 50, d.id);
+  assert.equal(VERB_DECKS.length, 4);
+  for (const d of VERB_DECKS) assert.equal(d.cards.length, 50, d.id);
   assert.equal(VERBS.length, 200);
-  assert.equal(verbsForDeck(ALL_DECK_ID).length, 200);
-  assert.equal(verbsForDeck('core').length, 50);
 });
 
 test('every verb is unique', () => {
@@ -72,7 +70,7 @@ test('ichidan verbs end in an i- or e-row sound + る', () => {
 });
 
 test('PRD fixes: duplicates replaced, real kanji used', () => {
-  const core = verbsForDeck('core').map((v) => v.kanji ?? v.kana);
+  const core = VERB_DECKS[0].cards.map((v) => v.kanji ?? v.kana);
   for (const w of ['着る', '洗う', '乗る', '食べる', '行く', '見る', '言う', '入る', '立つ', '走る']) {
     assert.ok(core.includes(w), `core deck missing ${w}`);
   }

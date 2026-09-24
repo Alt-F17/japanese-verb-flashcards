@@ -1,8 +1,8 @@
-import { DECKS, VERBS, ALL_DECK_ID, verbsForDeck } from './verbs.js';
+import { ALL_CARDS, DECK_GROUPS, DEFAULT_DECK_ID, isDeckId, getDeck } from './decks.js';
 import { createDeck, current, isDone, total, markCorrect, markIncorrect, reshuffle, reset } from './deck.js';
 
 const STORAGE_KEY = 'jvf.deck';
-const byId = new Map(VERBS.map((v) => [v.id, v]));
+const byId = new Map(ALL_CARDS.map((c) => [c.id, c]));
 const $ = (id) => document.getElementById(id);
 
 const el = {
@@ -31,15 +31,15 @@ const el = {
 };
 
 let deckId = loadDeckId();
-let state = createDeck(verbsForDeck(deckId).map((v) => v.id));
+let state = createDeck(getDeck(deckId).cards.map((c) => c.id));
 let flipped = false;
 
 function loadDeckId() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === ALL_DECK_ID || DECKS.some((d) => d.id === saved)) return saved;
+    if (isDeckId(saved)) return saved;
   } catch {}
-  return DECKS[0].id;
+  return DEFAULT_DECK_ID;
 }
 
 function saveDeckId(id) {
@@ -47,31 +47,29 @@ function saveDeckId(id) {
 }
 
 function buildDeckOptions() {
-  const options = DECKS.map((d, i) => [d.id, `Deck ${i + 1}: ${d.label} (${d.verbs.length})`]);
-  options.push([ALL_DECK_ID, `All ${VERBS.length} verbs`]);
-  for (const [value, label] of options) {
-    const opt = document.createElement('option');
-    opt.value = value;
-    opt.textContent = label;
-    el.deckSelect.append(opt);
+  for (const group of DECK_GROUPS) {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = group.label;
+    for (const d of group.decks) optgroup.append(new Option(d.label, d.id));
+    el.deckSelect.append(optgroup);
   }
   el.deckSelect.value = deckId;
 }
 
-function dictionaryLine(verb) {
+function dictionaryLine(card) {
   const seg = (text) => {
     const s = document.createElement('span');
     s.className = 'seg';
     s.textContent = text;
     return s;
   };
-  if (!verb.kanji) return [seg(verb.kana)];
-  const first = seg(verb.kanji);
+  if (!card.kanji) return [seg(card.kana)];
+  const first = seg(card.kanji);
   const sep = document.createElement('span');
   sep.className = 'sep';
   sep.textContent = '｜';
   first.append(sep);
-  return [first, document.createElement('wbr'), seg(verb.kana)];
+  return [first, document.createElement('wbr'), seg(card.kana)];
 }
 
 function setFlipped(value) {
@@ -83,14 +81,15 @@ function setFlipped(value) {
 
 // Swap content with the flip transition off so the next card's English never shows mid-animation.
 function showCurrentCard() {
-  const verb = byId.get(current(state));
-  if (!verb) return;
+  const card = byId.get(current(state));
+  if (!card) return;
   el.cardInner.classList.add('no-anim');
   setFlipped(false);
-  el.dict.replaceChildren(...dictionaryLine(verb));
-  el.polite.textContent = verb.polite;
-  el.english.textContent = verb.english;
-  el.backJa.textContent = verb.kanji ? `${verb.kanji}（${verb.kana}）` : verb.kana;
+  el.dict.replaceChildren(...dictionaryLine(card));
+  el.polite.textContent = card.polite ?? '';
+  el.polite.hidden = !card.polite;
+  el.english.textContent = card.english;
+  el.backJa.textContent = card.kanji ? `${card.kanji}（${card.kana}）` : card.kana;
   el.card.classList.add('entering');
   void el.card.offsetWidth;
   el.card.classList.remove('entering');
@@ -114,7 +113,7 @@ function render() {
   el.done.hidden = !done;
   el.shuffleBtn.disabled = done;
   if (done) {
-    el.doneText.textContent = `🎉 All ${total(state)} verbs completed!`;
+    el.doneText.textContent = `🎉 All ${total(state)} ${getDeck(deckId).unit} completed!`;
     el.resetDeckBtn.focus({ preventScroll: true });
   } else {
     showCurrentCard();
@@ -124,7 +123,7 @@ function render() {
 function startDeck(id) {
   deckId = id;
   saveDeckId(id);
-  state = createDeck(verbsForDeck(id).map((v) => v.id));
+  state = createDeck(getDeck(id).cards.map((c) => c.id));
   render();
 }
 
