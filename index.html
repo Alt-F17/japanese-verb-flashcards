@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Japanese Verb Flashcards</title>
+  <meta name="description" content="Flashcards for 200 common Japanese verbs: dictionary form, reading, polite ます-form and English.">
+  <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#14151a" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Verbs">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <label class="deck-picker">
+        <span class="visually-hidden">Deck</span>
+        <select id="deck-select"></select>
+      </label>
+
+      <div class="progress" aria-live="polite">
+        <div class="progress-text">
+          <span id="completed-text">0 / 50 completed</span>
+          <span id="remaining-text">50 remaining</span>
+        </div>
+        <div class="progress-bar" id="progress-bar" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="tools">
+        <button type="button" class="tool" id="shuffle-btn"><span aria-hidden="true">⤮</span> Shuffle</button>
+        <button type="button" class="tool" id="reset-btn"><span aria-hidden="true">↺</span> Reset</button>
+      </div>
+    </header>
+
+    <main class="stage">
+      <section class="study" id="study">
+        <button type="button" class="card" id="card" aria-describedby="card-hint">
+          <span class="card-inner" id="card-inner">
+            <span class="face front" id="front">
+              <span class="dict" lang="ja" id="dict"></span>
+              <span class="polite" lang="ja" id="polite"></span>
+              <span class="hint" id="card-hint">Tap to flip</span>
+            </span>
+            <span class="face back" id="back" aria-hidden="true">
+              <span class="english" id="english"></span>
+              <span class="back-ja" lang="ja" id="back-ja"></span>
+            </span>
+          </span>
+        </button>
+      </section>
+
+      <section class="done" id="done" hidden>
+        <h2 id="done-text">🎉 All 50 verbs completed!</h2>
+        <button type="button" class="big-btn" id="reset-deck-btn">Reset Deck</button>
+      </section>
+    </main>
+
+    <footer class="answers" id="answers">
+      <button type="button" class="answer-btn incorrect" id="incorrect-btn"><span aria-hidden="true">✕</span> Incorrect</button>
+      <button type="button" class="answer-btn correct" id="correct-btn"><span aria-hidden="true">✓</span> Correct</button>
+    </footer>
+  </div>
+</body>
+</html>
