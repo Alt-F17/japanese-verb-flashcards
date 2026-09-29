@@ -1,7 +1,11 @@
 import { ALL_CARDS, DECK_GROUPS, DEFAULT_DECK_ID, isDeckId, getDeck } from './decks.js';
 import { createDeck, current, isDone, total, markCorrect, markIncorrect, reshuffle, reset } from './deck.js';
+import {
+  CAP_OPTIONS, normalizeSettings, startStopwatch, pauseStopwatch, resumeStopwatch, isRunning, elapsedMs, isCapped, formatElapsed,
+} from './stopwatch.js';
 
 const STORAGE_KEY = 'jvf.deck';
+const SETTINGS_KEY = 'jvf.settings';
 const byId = new Map(ALL_CARDS.map((c) => [c.id, c]));
 const $ = (id) => document.getElementById(id);
 
@@ -28,11 +32,21 @@ const el = {
   answers: $('answers'),
   correctBtn: $('correct-btn'),
   incorrectBtn: $('incorrect-btn'),
+  stopwatch: $('stopwatch'),
+  settingsBtn: $('settings-btn'),
+  settings: $('settings'),
+  settingsClose: $('settings-close'),
+  stopwatchToggle: $('stopwatch-toggle'),
+  stopwatchCap: $('stopwatch-cap'),
+  capOptions: $('cap-options'),
 };
 
 let deckId = loadDeckId();
 let state = createDeck(getDeck(deckId).cards.map((c) => c.id));
 let flipped = false;
+let settings = loadSettings();
+let sw = null;
+let tickId = 0;
 
 function loadDeckId() {
   try {
@@ -44,6 +58,79 @@ function loadDeckId() {
 
 function saveDeckId(id) {
   try { localStorage.setItem(STORAGE_KEY, id); } catch {}
+}
+
+function loadSettings() {
+  try { return normalizeSettings(JSON.parse(localStorage.getItem(SETTINGS_KEY))); } catch {}
+  return normalizeSettings(null);
+}
+
+function saveSettings() {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch {}
+}
+
+// Paused while the settings sheet is open or the tab is in the background.
+const held = () => el.settings.open || document.hidden;
+
+function drawStopwatch() {
+  cancelAnimationFrame(tickId);
+  const show = settings.stopwatch && sw !== null && !isDone(state);
+  el.stopwatch.hidden = !show;
+  if (!show) return;
+  const now = performance.now();
+  el.stopwatch.textContent = formatElapsed(elapsedMs(sw, now, settings.stopwatchCap), settings.stopwatchCap);
+  if (isRunning(sw) && !isCapped(sw, now, settings.stopwatchCap)) tickId = requestAnimationFrame(drawStopwatch);
+}
+
+function restartStopwatch() {
+  sw = startStopwatch(performance.now());
+  if (held()) sw = pauseStopwatch(sw, performance.now());
+  drawStopwatch();
+}
+
+function holdStopwatch() {
+  if (sw) sw = pauseStopwatch(sw, performance.now());
+  drawStopwatch();
+}
+
+function releaseStopwatch() {
+  if (sw && !flipped && !held()) sw = resumeStopwatch(sw, performance.now());
+  drawStopwatch();
+}
+
+function buildSettings() {
+  for (const cap of CAP_OPTIONS) {
+    const label = document.createElement('label');
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.name = 'stopwatch-cap';
+    input.value = String(cap);
+    const text = document.createElement('span');
+    text.textContent = `${cap}s`;
+    label.append(input, text);
+    el.capOptions.append(label);
+  }
+  renderSettings();
+}
+
+function renderSettings() {
+  el.stopwatchToggle.checked = settings.stopwatch;
+  el.stopwatchCap.disabled = !settings.stopwatch;
+  for (const input of el.capOptions.querySelectorAll('input')) {
+    input.checked = Number(input.value) === settings.stopwatchCap;
+  }
+}
+
+function updateSettings(patch) {
+  const wasOn = settings.stopwatch;
+  settings = normalizeSettings({ ...settings, ...patch });
+  saveSettings();
+  renderSettings();
+  if (settings.stopwatch && !wasOn) {
+    sw = null;
+    if (!flipped) restartStopwatch();
+  }
+  drawStopwatch();
 }
 
 function buildDeckOptions() {
@@ -74,6 +161,10 @@ function dictionaryLine(card) {
 
 function setFlipped(value) {
   flipped = value;
+  if (flipped && sw) {
+    sw = pauseStopwatch(sw, performance.now());
+    drawStopwatch();
+  }
   el.card.classList.toggle('is-flipped', flipped);
   el.front.setAttribute('aria-hidden', String(flipped));
   el.back.setAttribute('aria-hidden', String(!flipped));
@@ -94,6 +185,7 @@ function showCurrentCard() {
   void el.card.offsetWidth;
   el.card.classList.remove('entering');
   el.cardInner.classList.remove('no-anim');
+  restartStopwatch();
 }
 
 function renderProgress() {
@@ -113,6 +205,8 @@ function render() {
   el.done.hidden = !done;
   el.shuffleBtn.disabled = done;
   if (done) {
+    sw = null;
+    drawStopwatch();
     el.doneText.textContent = `🎉 All ${total(state)} ${getDeck(deckId).unit} completed!`;
     el.resetDeckBtn.focus({ preventScroll: true });
   } else {
@@ -169,8 +263,19 @@ el.resetBtn.addEventListener('click', () => onReset({ confirmFirst: true }));
 el.resetDeckBtn.addEventListener('click', () => onReset({ confirmFirst: false }));
 el.deckSelect.addEventListener('change', onDeckChange);
 
+el.settingsBtn.addEventListener('click', () => {
+  el.settings.showModal();
+  holdStopwatch();
+});
+el.settingsClose.addEventListener('click', () => el.settings.close());
+el.settings.addEventListener('close', releaseStopwatch);
+el.settings.addEventListener('click', (e) => { if (e.target === el.settings) el.settings.close(); });
+el.stopwatchToggle.addEventListener('change', () => updateSettings({ stopwatch: el.stopwatchToggle.checked }));
+el.capOptions.addEventListener('change', (e) => updateSettings({ stopwatchCap: Number(e.target.value) }));
+document.addEventListener('visibilitychange', () => (document.hidden ? holdStopwatch() : releaseStopwatch()));
+
 document.addEventListener('keydown', (e) => {
-  if (e.metaKey || e.ctrlKey || e.altKey || e.target === el.deckSelect) return;
+  if (e.metaKey || e.ctrlKey || e.altKey || e.target === el.deckSelect || el.settings.open) return;
   if (e.key === 'ArrowRight') { e.preventDefault(); onCorrect(); }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); onIncorrect(); }
   else if ((e.key === ' ' || e.key === 'Enter') && !(e.target instanceof HTMLButtonElement) && !isDone(state)) {
@@ -180,4 +285,5 @@ document.addEventListener('keydown', (e) => {
 });
 
 buildDeckOptions();
+buildSettings();
 render();

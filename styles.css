@@ -100,6 +100,21 @@ button { cursor: pointer; }
   gap: 12px;
 }
 
+.top-row {
+  display: flex;
+  gap: 10px;
+}
+
+.deck-picker { flex: 1; min-width: 0; }
+
+.icon-btn {
+  flex: none;
+  width: 50px;
+  padding: 0;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
 .deck-picker select {
   width: 100%;
   min-height: 50px;
@@ -173,6 +188,25 @@ button { cursor: pointer; }
   flex: 1;
   display: flex;
 }
+
+.study { position: relative; }
+
+.stopwatch {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 1;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.stopwatch[hidden] { display: none; }
 
 .study[hidden], .done[hidden] { display: none; }
 
@@ -343,6 +377,152 @@ button { cursor: pointer; }
   .incorrect:hover { background: var(--incorrect-press); }
 }
 
+/* Settings */
+
+.settings {
+  width: 100%;
+  max-width: 560px;
+  max-height: 100%;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.settings::backdrop { background: rgba(0, 0, 0, 0.35); }
+
+.settings-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding:
+    max(14px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    20px
+    max(16px, env(safe-area-inset-left));
+}
+
+.settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-head h2 { margin: 0; font-size: 1.5rem; }
+.settings-head .tool { padding: 0 20px; }
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.setting-text { display: flex; flex-direction: column; gap: 4px; }
+.setting-name { font-size: 1.05rem; font-weight: 600; }
+.setting-desc { color: var(--muted); font-size: 0.9rem; }
+
+.switch {
+  flex: none;
+  position: relative;
+  width: 52px;
+  height: 32px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--border);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 150ms ease;
+}
+
+.switch:checked { background: var(--correct); }
+.switch:checked::after { transform: translateX(20px); }
+
+.setting-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.setting-cap legend { padding: 0; margin-bottom: 10px; }
+.setting-cap:disabled { opacity: 0.45; }
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.segmented label { position: relative; }
+
+.segmented input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.segmented span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 9px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.segmented input:checked + span {
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.segmented input:focus-visible + span {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.setting-cap:disabled input { cursor: default; }
+
 /* Short phones: tighten spacing so the card keeps its room */
 @media (max-height: 640px) {
   .app { gap: 10px; }
@@ -353,6 +533,6 @@ button { cursor: pointer; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card-inner, .progress-fill, .answer-btn { transition: none; }
+  .card-inner, .progress-fill, .answer-btn, .switch, .switch::after { transition: none; }
   .card { animation: none; }
 }

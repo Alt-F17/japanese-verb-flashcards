@@ -20,10 +20,13 @@
 <body>
   <div class="app">
     <header class="top">
-      <label class="deck-picker">
-        <span class="visually-hidden">Deck</span>
-        <select id="deck-select"></select>
-      </label>
+      <div class="top-row">
+        <label class="deck-picker">
+          <span class="visually-hidden">Deck</span>
+          <select id="deck-select"></select>
+        </label>
+        <button type="button" class="tool icon-btn" id="settings-btn" aria-label="Settings" aria-haspopup="dialog"><span aria-hidden="true">⚙︎</span></button>
+      </div>
 
       <div class="progress" aria-live="polite">
         <div class="progress-text">
@@ -43,6 +46,7 @@
 
     <main class="stage">
       <section class="study" id="study">
+        <span class="stopwatch" id="stopwatch" role="timer" aria-label="Time on this card" hidden>0.0s</span>
         <button type="button" class="card" id="card" aria-describedby="card-hint">
           <span class="card-inner" id="card-inner">
             <span class="face front" id="front">
@@ -69,5 +73,29 @@
       <button type="button" class="answer-btn correct" id="correct-btn"><span aria-hidden="true">✓</span> Correct</button>
     </footer>
   </div>
+
+  <dialog class="settings" id="settings" aria-labelledby="settings-title">
+    <div class="settings-inner">
+      <header class="settings-head">
+        <h2 id="settings-title">Settings</h2>
+        <button type="button" class="tool" id="settings-close">Done</button>
+      </header>
+
+      <section class="setting">
+        <label class="setting-row" for="stopwatch-toggle">
+          <span class="setting-text">
+            <span class="setting-name">Stopwatch</span>
+            <span class="setting-desc">Times each card until you flip it.</span>
+          </span>
+          <input type="checkbox" class="switch" id="stopwatch-toggle" role="switch">
+        </label>
+
+        <fieldset class="setting-cap" id="stopwatch-cap">
+          <legend class="setting-name">Stops at</legend>
+          <div class="segmented" id="cap-options"></div>
+        </fieldset>
+      </section>
+    </div>
+  </dialog>
 </body>
 </html>
