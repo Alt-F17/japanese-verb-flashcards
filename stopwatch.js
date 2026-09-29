@@ -1,13 +1,14 @@
 export const CAP_OPTIONS = [5, 10, 15, 20];
 export const MAX_CAP = 20;
 
-export const DEFAULT_SETTINGS = { stopwatch: false, stopwatchCap: MAX_CAP };
+export const DEFAULT_SETTINGS = { stopwatch: false, stopwatchCap: MAX_CAP, showTimer: true };
 
 export function normalizeSettings(raw) {
   const s = raw && typeof raw === 'object' ? raw : {};
   return {
     stopwatch: typeof s.stopwatch === 'boolean' ? s.stopwatch : DEFAULT_SETTINGS.stopwatch,
     stopwatchCap: CAP_OPTIONS.includes(s.stopwatchCap) ? s.stopwatchCap : DEFAULT_SETTINGS.stopwatchCap,
+    showTimer: typeof s.showTimer === 'boolean' ? s.showTimer : DEFAULT_SETTINGS.showTimer,
   };
 }
 

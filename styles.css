@@ -494,7 +494,8 @@ button { cursor: pointer; }
 }
 
 .setting-cap legend { padding: 0; margin-bottom: 10px; }
-.setting-cap:disabled { opacity: 0.45; }
+.setting-cap:disabled, .setting-row.is-disabled { opacity: 0.45; }
+.setting-row.is-disabled, .switch:disabled { cursor: default; }
 
 .segmented {
   display: grid;

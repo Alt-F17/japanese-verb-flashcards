@@ -41,6 +41,8 @@ const el = {
   stopwatchToggle: $('stopwatch-toggle'),
   stopwatchCap: $('stopwatch-cap'),
   capOptions: $('cap-options'),
+  showTimerToggle: $('show-timer-toggle'),
+  showTimerRow: $('show-timer-row'),
 };
 
 let deckId = loadDeckId();
@@ -91,7 +93,7 @@ function drawTotals(now) {
   const live = settings.stopwatch && sw !== null && !isDone(state);
   const ms = timedMs + (live ? elapsedMs(sw, now, settings.stopwatchCap) : 0);
   const text = formatTotal(ms, timedCards + (live ? 1 : 0));
-  el.totalTime.hidden = !settings.stopwatch;
+  el.totalTime.hidden = !settings.stopwatch || !settings.showTimer;
   el.totalTime.textContent = text;
   el.doneTime.hidden = !settings.stopwatch || timedCards === 0;
   el.doneTime.textContent = text;
@@ -102,7 +104,7 @@ function drawStopwatch() {
   const now = performance.now();
   drawTotals(now);
   const show = settings.stopwatch && sw !== null && !isDone(state);
-  el.stopwatch.hidden = !show;
+  el.stopwatch.hidden = !show || !settings.showTimer;
   if (!show) return;
   el.stopwatch.textContent = formatElapsed(elapsedMs(sw, now, settings.stopwatchCap), settings.stopwatchCap);
   if (isRunning(sw) && !isCapped(sw, now, settings.stopwatchCap)) tickId = requestAnimationFrame(drawStopwatch);
@@ -142,6 +144,9 @@ function buildSettings() {
 function renderSettings() {
   el.stopwatchToggle.checked = settings.stopwatch;
   el.stopwatchCap.disabled = !settings.stopwatch;
+  el.showTimerToggle.checked = settings.showTimer;
+  el.showTimerToggle.disabled = !settings.stopwatch;
+  el.showTimerRow.classList.toggle('is-disabled', !settings.stopwatch);
   for (const input of el.capOptions.querySelectorAll('input')) {
     input.checked = Number(input.value) === settings.stopwatchCap;
   }
@@ -301,6 +306,7 @@ el.settingsClose.addEventListener('click', () => el.settings.close());
 el.settings.addEventListener('close', releaseStopwatch);
 el.settings.addEventListener('click', (e) => { if (e.target === el.settings) el.settings.close(); });
 el.stopwatchToggle.addEventListener('change', () => updateSettings({ stopwatch: el.stopwatchToggle.checked }));
+el.showTimerToggle.addEventListener('change', () => updateSettings({ showTimer: el.showTimerToggle.checked }));
 el.capOptions.addEventListener('change', (e) => updateSettings({ stopwatchCap: Number(e.target.value) }));
 document.addEventListener('visibilitychange', () => (document.hidden ? holdStopwatch() : releaseStopwatch()));
 

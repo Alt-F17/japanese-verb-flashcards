@@ -9,11 +9,15 @@ test('cap options are 5, 10, 15, 20', () => {
   assert.deepEqual(CAP_OPTIONS, [5, 10, 15, 20]);
 });
 
-test('settings default to off with a 20s cap and reject bad values', () => {
+test('settings default to off with a 20s cap, timer shown, and reject bad values', () => {
   assert.deepEqual(normalizeSettings(null), DEFAULT_SETTINGS);
-  assert.deepEqual(DEFAULT_SETTINGS, { stopwatch: false, stopwatchCap: 20 });
-  assert.deepEqual(normalizeSettings({ stopwatch: true, stopwatchCap: 10 }), { stopwatch: true, stopwatchCap: 10 });
-  assert.deepEqual(normalizeSettings({ stopwatch: 'yes', stopwatchCap: 25 }), DEFAULT_SETTINGS);
+  assert.deepEqual(DEFAULT_SETTINGS, { stopwatch: false, stopwatchCap: 20, showTimer: true });
+  assert.deepEqual(
+    normalizeSettings({ stopwatch: true, stopwatchCap: 10, showTimer: false }),
+    { stopwatch: true, stopwatchCap: 10, showTimer: false },
+  );
+  assert.deepEqual(normalizeSettings({ stopwatch: true, stopwatchCap: 10 }), { stopwatch: true, stopwatchCap: 10, showTimer: true });
+  assert.deepEqual(normalizeSettings({ stopwatch: 'yes', stopwatchCap: 25, showTimer: 0 }), DEFAULT_SETTINGS);
   assert.deepEqual(normalizeSettings({ stopwatchCap: '5' }), DEFAULT_SETTINGS);
 });
 
