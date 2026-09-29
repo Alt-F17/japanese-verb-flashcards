@@ -8,6 +8,6 @@ Phone-first flashcards for 200 common Japanese verbs and 200 common nouns (N5/N4
 - ✓ Correct takes the card out for the round. ✕ Incorrect puts it back later in the deck.
 - Verbs: Core verbs, Daily life, Home/town/travel, Thoughts/feelings/people. Nouns: People & time, Places & things, Food/body/nature, School/work/ideas. 50 cards each, or all verbs, all nouns, or everything (400).
 - Shuffle, progress, completion screen and Reset Deck.
-- Settings (⚙︎): optional per-card stopwatch. Counts up from 0 on each new card, pauses when you flip, stops at 5, 10, 15 or 20s. Off by default.
+- Settings (⚙︎): optional per-card stopwatch. Counts up from 0 on each new card, pauses when you flip, stops at 5, 10, 15 or 20s. Shows a running total time and average per card, live and on the completion screen. Off by default.
 
 Plain HTML/CSS/JS, no build. Run locally with `npm start` (then open http://localhost:8000), test with `npm test`.

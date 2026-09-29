@@ -143,6 +143,22 @@ button { cursor: pointer; }
 #completed-text { font-weight: 700; }
 #remaining-text { color: var(--muted); }
 
+.total-time {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.total-time[hidden], .done-time[hidden] { display: none; }
+
+.done-time {
+  margin: -12px 0 0;
+  color: var(--muted);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .progress-bar {
   height: 10px;
   border-radius: 999px;

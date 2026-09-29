@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   CAP_OPTIONS, DEFAULT_SETTINGS, normalizeSettings, startStopwatch, pauseStopwatch, resumeStopwatch,
-  isRunning, elapsedMs, isCapped, formatElapsed,
+  isRunning, elapsedMs, isCapped, formatElapsed, formatTotal,
 } from '../stopwatch.js';
 
 test('cap options are 5, 10, 15, 20', () => {
@@ -52,4 +52,11 @@ test('formats tenths and shows the cap as a whole number', () => {
   assert.equal(formatElapsed(19999, 20), '19.9s');
   assert.equal(formatElapsed(20000, 20), '20s');
   assert.equal(formatElapsed(5000, 5), '5s');
+});
+
+test('total time shows minutes, seconds and the per-card average', () => {
+  assert.equal(formatTotal(0, 0), 'total time: 0s (0s/card)');
+  assert.equal(formatTotal(34900, 4), 'total time: 34s (9s/card)');
+  assert.equal(formatTotal(1234000, 150), 'total time: 20m 34s (8s/card)');
+  assert.equal(formatTotal(65000, 13), 'total time: 1m 05s (5s/card)');
 });

@@ -31,3 +31,12 @@ export function formatElapsed(ms, capSec) {
   if (ms >= capSec * 1000) return `${capSec}s`;
   return `${(Math.floor(ms / 100) / 10).toFixed(1)}s`;
 }
+
+export function formatTotal(totalMs, cards) {
+  const sec = Math.floor(totalMs / 1000);
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  const total = m ? `${m}m ${String(s).padStart(2, '0')}s` : `${s}s`;
+  const avg = cards ? Math.round(totalMs / cards / 1000) : 0;
+  return `total time: ${total} (${avg}s/card)`;
+}

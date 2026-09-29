@@ -1,7 +1,7 @@
 import { ALL_CARDS, DECK_GROUPS, DEFAULT_DECK_ID, isDeckId, getDeck } from './decks.js';
 import { createDeck, current, isDone, total, markCorrect, markIncorrect, reshuffle, reset } from './deck.js';
 import {
-  CAP_OPTIONS, normalizeSettings, startStopwatch, pauseStopwatch, resumeStopwatch, isRunning, elapsedMs, isCapped, formatElapsed,
+  CAP_OPTIONS, normalizeSettings, startStopwatch, pauseStopwatch, resumeStopwatch, isRunning, elapsedMs, isCapped, formatElapsed, formatTotal,
 } from './stopwatch.js';
 
 const STORAGE_KEY = 'jvf.deck';
@@ -33,6 +33,8 @@ const el = {
   correctBtn: $('correct-btn'),
   incorrectBtn: $('incorrect-btn'),
   stopwatch: $('stopwatch'),
+  totalTime: $('total-time'),
+  doneTime: $('done-time'),
   settingsBtn: $('settings-btn'),
   settings: $('settings'),
   settingsClose: $('settings-close'),
@@ -47,6 +49,8 @@ let flipped = false;
 let settings = loadSettings();
 let sw = null;
 let tickId = 0;
+let timedMs = 0;
+let timedCards = 0;
 
 function loadDeckId() {
   try {
@@ -72,12 +76,34 @@ function saveSettings() {
 // Paused while the settings sheet is open or the tab is in the background.
 const held = () => el.settings.open || document.hidden;
 
+function recordCard() {
+  if (!settings.stopwatch || !sw) return;
+  timedMs += elapsedMs(sw, performance.now(), settings.stopwatchCap);
+  timedCards += 1;
+}
+
+function clearTotals() {
+  timedMs = 0;
+  timedCards = 0;
+}
+
+function drawTotals(now) {
+  const live = settings.stopwatch && sw !== null && !isDone(state);
+  const ms = timedMs + (live ? elapsedMs(sw, now, settings.stopwatchCap) : 0);
+  const text = formatTotal(ms, timedCards + (live ? 1 : 0));
+  el.totalTime.hidden = !settings.stopwatch;
+  el.totalTime.textContent = text;
+  el.doneTime.hidden = !settings.stopwatch || timedCards === 0;
+  el.doneTime.textContent = text;
+}
+
 function drawStopwatch() {
   cancelAnimationFrame(tickId);
+  const now = performance.now();
+  drawTotals(now);
   const show = settings.stopwatch && sw !== null && !isDone(state);
   el.stopwatch.hidden = !show;
   if (!show) return;
-  const now = performance.now();
   el.stopwatch.textContent = formatElapsed(elapsedMs(sw, now, settings.stopwatchCap), settings.stopwatchCap);
   if (isRunning(sw) && !isCapped(sw, now, settings.stopwatchCap)) tickId = requestAnimationFrame(drawStopwatch);
 }
@@ -218,6 +244,7 @@ function startDeck(id) {
   deckId = id;
   saveDeckId(id);
   state = createDeck(getDeck(id).cards.map((c) => c.id));
+  clearTotals();
   render();
 }
 
@@ -225,12 +252,14 @@ const inProgress = () => state.completed > 0 && !isDone(state);
 
 function onCorrect() {
   if (isDone(state)) return;
+  recordCard();
   state = markCorrect(state);
   render();
 }
 
 function onIncorrect() {
   if (isDone(state)) return;
+  recordCard();
   state = markIncorrect(state);
   render();
 }
@@ -243,6 +272,7 @@ function onShuffle() {
 function onReset({ confirmFirst }) {
   if (confirmFirst && inProgress() && !confirm('Reset this deck? Your progress for this round will be cleared.')) return;
   state = reset(state);
+  clearTotals();
   render();
 }
 
