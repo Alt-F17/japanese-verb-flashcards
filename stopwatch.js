@@ -38,5 +38,5 @@ export function formatTotal(totalMs, cards) {
   const s = sec % 60;
   const total = m ? `${m}m ${String(s).padStart(2, '0')}s` : `${s}s`;
   const avg = cards ? Math.round(totalMs / cards / 1000) : 0;
-  return `total time: ${total} (${avg}s/card)`;
+  return `Total time: ${total} (${avg}s/card)`;
 }

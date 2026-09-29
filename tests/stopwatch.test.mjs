@@ -55,8 +55,8 @@ test('formats tenths and shows the cap as a whole number', () => {
 });
 
 test('total time shows minutes, seconds and the per-card average', () => {
-  assert.equal(formatTotal(0, 0), 'total time: 0s (0s/card)');
-  assert.equal(formatTotal(34900, 4), 'total time: 34s (9s/card)');
-  assert.equal(formatTotal(1234000, 150), 'total time: 20m 34s (8s/card)');
-  assert.equal(formatTotal(65000, 13), 'total time: 1m 05s (5s/card)');
+  assert.equal(formatTotal(0, 0), 'Total time: 0s (0s/card)');
+  assert.equal(formatTotal(34900, 4), 'Total time: 34s (9s/card)');
+  assert.equal(formatTotal(1234000, 150), 'Total time: 20m 34s (8s/card)');
+  assert.equal(formatTotal(65000, 13), 'Total time: 1m 05s (5s/card)');
 });
