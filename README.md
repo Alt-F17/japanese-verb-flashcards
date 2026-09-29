@@ -11,3 +11,5 @@ Phone-first flashcards for 200 common Japanese verbs and 200 common nouns (N5/N4
 - Settings (⚙︎): optional per-card stopwatch. Counts up from 0 on each new card, pauses when you flip, stops at 5, 10, 15 or 20s. Shows a running total time and average per card, live and on the completion screen. Show timer off hides the live timer and total but still times you, and shows the total and average at the end. Off by default.
 
 Plain HTML/CSS/JS, no build. Run locally with `npm start` (then open http://localhost:8000), test with `npm test`.
+
+Deploys via `.github/workflows/pages.yml` (Settings → Pages → Source must be **GitHub Actions**). Runs tests, then deploys on every push to `main`, on manual run from the Actions tab, and every 15 minutes if `main` has an undeployed commit.
